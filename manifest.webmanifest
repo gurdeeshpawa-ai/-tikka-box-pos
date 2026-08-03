@@ -1,0 +1,17 @@
+{
+  "name": "Tikka Box POS",
+  "short_name": "Tikka Box",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#101010",
+  "theme_color": "#111111",
+  "description": "Tikka Box iPad point-of-sale app",
+  "icons": [
+    {
+      "src": "tikka-box-logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

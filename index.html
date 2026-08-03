@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111111" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tikka Box POS" />
+  <title>Tikka Box POS</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="tikka-box-logo.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="tikka-box-logo.png" alt="Tikka Box logo" />
+      <div>
+        <h1>Tikka Box POS</h1>
+        <p>Fresh. Bold. Indian.</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="ghost" id="newOrderBtn">New Order</button>
+      <button class="ghost" id="reportsBtn">Reports</button>
+      <button class="ghost" id="manageBtn">Menu & Settings</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="menu-panel">
+      <div class="category-tabs" id="categoryTabs"></div>
+      <div class="menu-grid" id="menuGrid"></div>
+    </section>
+
+    <aside class="cart-panel">
+      <div class="cart-heading">
+        <div>
+          <h2>Current Order</h2>
+          <span id="orderNumber">Order #1</span>
+        </div>
+        <button class="danger small" id="clearCartBtn">Clear</button>
+      </div>
+
+      <div class="order-type">
+        <button class="toggle active" data-order-type="Pickup">Pickup</button>
+        <button class="toggle" data-order-type="Dine-in">Dine-in</button>
+      </div>
+
+      <div class="cart-items" id="cartItems">
+        <div class="empty-state">Tap a menu item to begin.</div>
+      </div>
+
+      <div class="notes">
+        <input id="customerName" placeholder="Customer name (optional)" />
+        <textarea id="orderNotes" placeholder="Order notes: spice level, allergies, etc."></textarea>
+      </div>
+
+      <div class="totals">
+        <div><span>Subtotal</span><strong id="subtotal">$0.00</strong></div>
+        <div><span>Tax <small id="taxRateLabel"></small></span><strong id="tax">$0.00</strong></div>
+        <div class="grand-total"><span>Total</span><strong id="total">$0.00</strong></div>
+      </div>
+
+      <div class="payment-buttons">
+        <button class="pay cash" id="cashBtn">Cash</button>
+        <button class="pay card" id="cardBtn">Card Terminal</button>
+      </div>
+    </aside>
+  </main>
+
+  <dialog id="cashDialog">
+    <form method="dialog" class="dialog-card">
+      <h2>Cash Payment</h2>
+      <div class="amount-due">Amount due: <strong id="cashAmountDue">$0.00</strong></div>
+      <label>Cash received
+        <input id="cashReceived" type="number" step="0.01" inputmode="decimal" placeholder="0.00" />
+      </label>
+      <div class="quick-cash" id="quickCash"></div>
+      <div class="change-row">Change: <strong id="changeDue">$0.00</strong></div>
+      <div class="dialog-actions">
+        <button value="cancel" class="ghost">Cancel</button>
+        <button type="button" id="completeCashBtn" class="primary">Complete Sale</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="cardDialog">
+    <form method="dialog" class="dialog-card">
+      <h2>Card Terminal</h2>
+      <p>Charge <strong id="cardAmountDue">$0.00</strong> on your Square, Clover, or other card terminal.</p>
+      <div class="terminal-note">
+        This first version records the payment in the POS. Direct card processing requires your payment-provider account and developer credentials.
+      </div>
+      <div class="dialog-actions">
+        <button value="cancel" class="ghost">Cancel</button>
+        <button type="button" id="completeCardBtn" class="primary">Payment Approved</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="receiptDialog">
+    <div class="dialog-card receipt-dialog">
+      <div id="receiptPreview"></div>
+      <div class="dialog-actions wrap">
+        <button class="ghost" id="closeReceiptBtn">Close</button>
+        <button class="ghost" id="printKitchenBtn">Print Kitchen Ticket</button>
+        <button class="primary" id="printReceiptBtn">Print Receipt</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="reportsDialog">
+    <div class="dialog-card wide">
+      <div class="dialog-title-row">
+        <h2>Sales Reports</h2>
+        <button class="ghost small" id="closeReportsBtn">Close</button>
+      </div>
+      <div class="report-cards">
+        <div><span>Today's Sales</span><strong id="todaySales">$0.00</strong></div>
+        <div><span>Orders</span><strong id="todayOrders">0</strong></div>
+        <div><span>Cash</span><strong id="todayCash">$0.00</strong></div>
+        <div><span>Card</span><strong id="todayCard">$0.00</strong></div>
+      </div>
+      <div class="report-table-wrap">
+        <table>
+          <thead><tr><th>Time</th><th>Order</th><th>Payment</th><th>Total</th></tr></thead>
+          <tbody id="reportRows"></tbody>
+        </table>
+      </div>
+      <div class="dialog-actions">
+        <button class="danger" id="clearSalesBtn">Clear All Sales Data</button>
+        <button class="primary" id="exportSalesBtn">Export CSV</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="manageDialog">
+    <div class="dialog-card wide">
+      <div class="dialog-title-row">
+        <h2>Menu & Settings</h2>
+        <button class="ghost small" id="closeManageBtn">Close</button>
+      </div>
+
+      <div class="settings-grid">
+        <label>Michigan sales tax %
+          <input id="taxRateInput" type="number" step="0.01" min="0" />
+        </label>
+        <label>Restaurant name
+          <input id="restaurantNameInput" />
+        </label>
+        <label>Phone
+          <input id="phoneInput" />
+        </label>
+        <label>Address
+          <input id="addressInput" />
+        </label>
+      </div>
+
+      <h3>Edit Menu Prices / Availability</h3>
+      <div id="menuEditor" class="menu-editor"></div>
+
+      <div class="dialog-actions">
+        <button class="ghost" id="resetMenuBtn">Reset Default Menu</button>
+        <button class="primary" id="saveSettingsBtn">Save Changes</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
